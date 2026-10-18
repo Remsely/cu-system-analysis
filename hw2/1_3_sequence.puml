@@ -1,0 +1,109 @@
+@startuml
+
+skinparam shadowing false
+skinparam defaultFontSize 12
+skinparam backgroundColor white
+skinparam roundCorner 8
+skinparam ArrowColor #333333
+skinparam wrapWidth 220
+skinparam sequence {
+  ParticipantBackgroundColor #EEF3FF
+  ParticipantBorderColor #3B5BDB
+  ActorBackgroundColor #EEF3FF
+  LifeLineBorderColor #888888
+  GroupBackgroundColor #FFFFFF
+}
+skinparam database {
+  BackgroundColor #EEF3FF
+  BorderColor #3B5BDB
+}
+skinparam queue {
+  BackgroundColor #EEF3FF
+  BorderColor #3B5BDB
+}
+
+title Диаграмма последовательности: пользователь бронирует номер и получает подтверждение
+
+autonumber "<b>0"
+
+actor "Пользователь" as U
+participant "Система\nбронирования" as W
+participant "Система отеля\n(внешняя)" as H
+database "БД" as DB
+queue "Очередь\nсобытий" as Q
+participant "Сервис\nуведомлений" as N
+participant "Почтовый\nсервис" as M
+
+U -> W : подтвердить бронирование\n(roomId, даты, гости, показанная цена)
+activate W
+W -> H : проверить предложение\n(roomId, даты, гости)
+activate H
+H --> W : наличие номера и актуальная цена
+deactivate H
+
+alt номер недоступен
+  W --> U : «Номер уже забронирован»,\nпредложение вернуться к выдаче
+else актуальная цена отличается от показанной
+  W --> U : предупреждение (прежняя и новая цена),\nпросьба подтвердить заново
+else номер доступен, цена совпала
+  W -> DB : создать бронь (PENDING)
+  activate DB
+  DB --> W : bookingNumber
+  deactivate DB
+  W -> H : создать бронь (bookingNumber как ключ\nидемпотентности, roomId, даты, гости, цена)
+  activate H
+  H --> W : подтверждение брони отелем | ошибка «нет мест»
+  deactivate H
+  alt бронь создана в системе отеля
+    W -> DB : статус CONFIRMED и событие\nBookingConfirmed в outbox (одна транзакция)
+    activate DB
+    DB --> W : ok
+    deactivate DB
+    W --> U : экран с номером брони
+  else нет мест: номер заняли между проверкой и бронью
+    W -> DB : статус FAILED
+    activate DB
+    DB --> W : ok
+    deactivate DB
+    W --> U : «Номер уже забронирован»,\nпредложение вернуться к выдаче
+  end
+end
+deactivate W
+
+== После создания брони: асинхронная отправка подтверждения ==
+
+W ->> Q : опубликовать BookingConfirmed(bookingNumber)
+note right of W
+  фоновый outbox-relay: читает outbox и публикует;
+  если очередь недоступна, событие остаётся
+  в outbox и публикуется при следующей попытке
+end note
+Q ->> N : доставить BookingConfirmed
+note right of N
+  если сервис уведомлений недоступен,
+  событие ждёт в очереди; бронь при этом
+  уже подтверждена пользователю
+end note
+activate N
+N -> DB : получить данные брони (bookingNumber)
+activate DB
+DB --> N : отель, адрес, тип номера, даты, гости
+deactivate DB
+loop первая попытка и до 5 повторов (паузы 1, 2, 4, 8, 15 мин), пока письмо не принято
+  N -> M : отправить email-подтверждение
+  activate M
+  M --> N : принято | ошибка
+  deactivate M
+  opt ошибка
+    N -> N : записать сбой в лог\n(номер брони, попытка, причина)
+  end
+end
+N -> DB : сохранить статус уведомления\n(SENT | FAILED, если повторы исчерпаны)
+activate DB
+DB --> N : ok
+deactivate DB
+opt письмо принято
+  M ->> U : письмо с подтверждением бронирования
+end
+deactivate N
+@enduml

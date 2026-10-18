@@ -1,0 +1,173 @@
+@startuml
+
+skinparam shadowing false
+skinparam defaultFontSize 12
+skinparam backgroundColor white
+skinparam roundCorner 8
+skinparam ArrowColor #333333
+skinparam wrapWidth 220
+title Диаграмма классов: доменная модель системы бронирования отелей
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor #EEF3FF
+  BorderColor #3B5BDB
+  AttributeFontSize 11
+}
+hide empty members
+
+class User {
+  - id: UUID
+  - lastName: String
+  - firstName: String
+  - middleName: String
+  - email: String
+  - phone: String
+  + getContactEmail(): String
+  + getBookings(): List<Booking>
+}
+
+class SearchFilter {
+  - city: String
+  - checkIn: LocalDate
+  - checkOut: LocalDate
+  - guests: int
+  - maxMetroWalkMinutes: int
+  - breakfastRequired: boolean
+  - minPricePerNight: BigDecimal
+  - maxPricePerNight: BigDecimal
+  + validate(): boolean
+  + matches(hotel: Hotel): boolean
+}
+
+class AttractionFilter {
+  - id: Long
+  - maxMinutes: int
+  - travelMode: TravelMode
+  + isSatisfiedBy(d: HotelDistance): boolean
+  + getMaxMinutes(): int
+}
+
+abstract class PlaceOfInterest {
+  - id: Long
+  # name: String
+  # latitude: double
+  # longitude: double
+  + getName(): String
+  + distanceTo(p: PlaceOfInterest): int
+}
+
+class MetroStation {
+  - line: String
+  - city: String
+  - isOpen: boolean
+  + getLine(): String
+  + isOpenNow(): boolean
+}
+
+class Attraction {
+  - category: String
+  - description: String
+  - openingHours: String
+  + getCategory(): String
+  + isOpenAt(t: LocalTime): boolean
+}
+
+class Hotel {
+  - id: Long
+  - name: String
+  - address: String
+  - city: String
+  - stars: int
+  + findFreeRooms(from: LocalDate, to: LocalDate, guests: int): List<Room>
+  + getDistanceTo(p: PlaceOfInterest): HotelDistance
+}
+
+class Room {
+  - id: Long
+  - number: String
+  - roomType: String
+  - capacity: int
+  - includedGuests: int
+  - pricePerNight: BigDecimal
+  - extraGuestFee: BigDecimal
+  - breakfastIncluded: boolean
+  - priceUpdatedAt: LocalDateTime
+  + isAvailable(from: LocalDate, to: LocalDate): boolean
+  + calcTotal(nights: int, guests: int): BigDecimal
+}
+
+class HotelDistance <<association class>> {
+  - distanceMeters: int
+  - walkMinutes: int
+  - transitMinutes: int
+  - driveMinutes: int
+  + getMinutes(mode: TravelMode): int
+  + isWithin(maxMinutes: int, mode: TravelMode): boolean
+}
+
+class Booking {
+  - bookingNumber: String
+  - hotelReservationId: String
+  - checkIn: LocalDate
+  - checkOut: LocalDate
+  - guests: int
+  - totalPrice: BigDecimal
+  - status: BookingStatus
+  + confirm(hotelReservationId: String): void
+  + fail(): void
+}
+
+abstract class Notification {
+  - id: Long
+  # status: NotificationStatus
+  # createdAt: LocalDateTime
+  + markSent(): void
+  + markFailed(): void
+}
+
+class EmailNotification {
+  - recipientEmail: String
+  - subject: String
+  - attempts: int
+  - nextAttemptAt: LocalDateTime
+  + registerFailure(reason: String): void
+  + canRetry(): boolean
+}
+
+enum TravelMode <<enumeration>> {
+  WALK
+  TRANSIT
+  DRIVE
+}
+enum BookingStatus <<enumeration>> {
+  PENDING
+  CONFIRMED
+  FAILED
+}
+enum NotificationStatus <<enumeration>> {
+  PENDING
+  SENT
+  FAILED
+}
+
+User "1" -- "0..*" SearchFilter : задаёт >
+User "1" -- "0..*" Booking : оформляет >
+SearchFilter "1" *-- "0..*" AttractionFilter : содержит
+AttractionFilter "0..*" -- "1" Attraction : ограничивает\nрасстояние до >
+SearchFilter ..> Hotel : отбирает
+
+Hotel "1" *-- "1..*" Room : состоит из
+Room "1" -- "0..*" Booking : бронируется в >
+Booking "1" -- "0..*" Notification : порождает >
+
+Hotel "0..*" -- "0..*" PlaceOfInterest : находится рядом с
+(Hotel, PlaceOfInterest) .. HotelDistance
+
+PlaceOfInterest <|-- MetroStation
+PlaceOfInterest <|-- Attraction
+Notification <|-- EmailNotification
+
+AttractionFilter ..> TravelMode
+Booking ..> BookingStatus
+Notification ..> NotificationStatus
+@enduml

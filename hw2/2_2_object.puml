@@ -1,0 +1,128 @@
+@startuml
+
+skinparam shadowing false
+skinparam defaultFontSize 12
+skinparam backgroundColor white
+skinparam roundCorner 8
+skinparam ArrowColor #333333
+skinparam wrapWidth 220
+skinparam object {
+  BackgroundColor #EEF3FF
+  BorderColor #3B5BDB
+}
+hide empty members
+
+title Диаграмма объектов: бронь оформлена, письмо-подтверждение ещё в очереди (18.10.2026, 11:45)
+
+object "__ivan : User__" as ivan {
+  id = "b7c1e2a4-5d3f-4a2e-9c10-7f3a8e6d1b25"
+  lastName = "Петров"
+  firstName = "Иван"
+  middleName = "Сергеевич"
+  email = "ivan.petrov@example.com"
+  phone = "+7 905 123-45-67"
+}
+
+object "__search1 : SearchFilter__" as search1 {
+  city = "Москва"
+  checkIn = 2026-11-12
+  checkOut = 2026-11-15
+  guests = 2
+  maxMetroWalkMinutes = 10
+  breakfastRequired = true
+  minPricePerNight = 3000.00
+  maxPricePerNight = 6000.00
+}
+
+object "__attrFilter1 : AttractionFilter__" as attrFilter1 {
+  id = 1
+  maxMinutes = 15
+  travelMode = WALK
+}
+
+object "__redSquare : Attraction__" as redSquare {
+  id = 2041
+  name = "Красная площадь"
+  latitude = 55.7539
+  longitude = 37.6208
+  category = "площадь"
+  description = "Главная площадь Москвы"
+  openingHours = "круглосуточно"
+}
+
+object "__kitayGorod : MetroStation__" as kitayGorod {
+  id = 1187
+  name = "Китай-город"
+  latitude = 55.7567
+  longitude = 37.6342
+  line = "Калужско-Рижская"
+  city = "Москва"
+  isOpen = true
+}
+
+object "__nikolskaya : Hotel__" as nikolskaya {
+  id = 318
+  name = "Отель «Никольская»"
+  address = "Москва, ул. Никольская, 10"
+  city = "Москва"
+  stars = 4
+}
+
+object "__room412 : Room__" as room412 {
+  id = 5412
+  number = "412"
+  roomType = "Стандарт двухместный"
+  capacity = 3
+  includedGuests = 2
+  pricePerNight = 4800.00
+  extraGuestFee = 700.00
+  breakfastIncluded = true
+  priceUpdatedAt = 2026-10-18T11:42
+}
+
+object "__distMetro : HotelDistance__" as distMetro {
+  distanceMeters = 450
+  walkMinutes = 6
+  transitMinutes = 4
+  driveMinutes = 3
+}
+
+object "__distRedSquare : HotelDistance__" as distRed {
+  distanceMeters = 500
+  walkMinutes = 7
+  transitMinutes = 5
+  driveMinutes = 3
+}
+
+object "__booking1 : Booking__" as booking1 {
+  bookingNumber = "BK-2026-004871"
+  hotelReservationId = "NKL-77812"
+  checkIn = 2026-11-12
+  checkOut = 2026-11-15
+  guests = 2
+  totalPrice = 14400.00
+  status = CONFIRMED
+}
+
+object "__mail1 : EmailNotification__" as mail1 {
+  id = 90017
+  status = PENDING
+  createdAt = 2026-10-18T11:45
+  recipientEmail = "ivan.petrov@example.com"
+  subject = "Подтверждение бронирования BK-2026-004871"
+  attempts = 0
+  nextAttemptAt = 2026-10-18T11:45
+}
+
+ivan -- search1 : задаёт >
+ivan -- booking1 : оформляет >
+search1 *-- attrFilter1 : содержит
+attrFilter1 -- redSquare : ограничивает\nрасстояние до >
+nikolskaya *-- room412 : состоит из
+room412 -- booking1 : бронируется в >
+booking1 -- mail1 : порождает >
+nikolskaya -- kitayGorod : находится рядом с
+nikolskaya -- redSquare : находится рядом с
+(nikolskaya, kitayGorod) .. distMetro
+(nikolskaya, redSquare) .. distRed
+@enduml

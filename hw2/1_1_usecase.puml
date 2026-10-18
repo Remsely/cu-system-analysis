@@ -1,0 +1,96 @@
+@startuml
+
+skinparam shadowing false
+skinparam defaultFontSize 12
+skinparam backgroundColor white
+skinparam roundCorner 8
+skinparam ArrowColor #333333
+skinparam wrapWidth 220
+skinparam actorStyle stickman
+skinparam usecase {
+  BackgroundColor #EEF3FF
+  BorderColor #3B5BDB
+}
+skinparam rectangle {
+  BackgroundColor #FFFFFF
+  BorderColor #555555
+}
+left to right direction
+
+title Диаграмма прецедентов: система бронирования отелей
+
+actor "Пользователь" as User
+actor "Система отеля\n(внешняя)" as HotelSys
+actor "Почтовый сервис\n(внешний)" as Mail
+
+rectangle "Система бронирования отелей" {
+  usecase "Найти отели в городе" as UC_Search
+  usecase "Выбрать даты\nи число гостей" as UC_Dates
+  usecase "Отфильтровать по близости\nк метро" as UC_Metro
+  usecase "Отфильтровать по расстоянию\nдо достопримечательностей" as UC_Attr
+  usecase "Отфильтровать по завтраку" as UC_Breakfast
+  usecase "Ограничить цену за ночь" as UC_Price
+  usecase "Смягчить фильтры" as UC_Relax
+  usecase "Просмотреть информацию о номере\nи стоимость проживания" as UC_ViewPrice
+  usecase "Получить актуальную цену\nи наличие номера" as UC_Actual
+  usecase "Забронировать номер" as UC_Book
+  usecase "Повторно подтвердить\nизменившуюся цену" as UC_Reconfirm
+  usecase "Зарезервировать номер\nв отеле" as UC_Reserve
+  usecase "Отправить\nemail-подтверждение" as UC_Email
+}
+
+User -- UC_Search
+User -- UC_Book
+
+UC_Search ..> UC_Dates : <<include>>
+UC_Search ..> UC_Actual : <<include>>
+UC_Book ..> UC_Actual : <<include>>
+UC_Book ..> UC_Reserve : <<include>>
+UC_Book ..> UC_Email : <<include>>
+
+UC_Metro .up.> UC_Search : <<extend>>
+UC_Attr .up.> UC_Search : <<extend>>
+UC_Breakfast .up.> UC_Search : <<extend>>
+UC_Price .up.> UC_Search : <<extend>>
+UC_Relax .up.> UC_Search : <<extend>>
+UC_ViewPrice .up.> UC_Search : <<extend>>
+UC_Book .up.> UC_ViewPrice : <<extend>>
+UC_Reconfirm .up.> UC_Book : <<extend>>
+
+UC_Actual -- HotelSys
+UC_Reserve -- HotelSys
+UC_Email -- Mail
+
+note bottom of UC_ViewPrice
+  информация: цена за ночь и за весь период, вместимость,
+  завтрак, расстояния до метро и достопримечательностей
+  условие: пользователь открыл карточку номера из выдачи
+end note
+
+note left of UC_Book
+  условие: пользователь решил
+  забронировать просмотренный номер
+end note
+
+note as N_Filters
+  условие extend для фильтров:
+  пользователь задал соответствующий фильтр
+end note
+
+N_Filters .. UC_Metro
+N_Filters .. UC_Attr
+N_Filters .. UC_Breakfast
+N_Filters .. UC_Price
+
+note right of UC_Relax
+  условие: выдача пустая или не устраивает пользователя;
+  при пустой выдаче система показывает до 10 ближайших
+  отелей с указанием нарушенного фильтра
+end note
+
+note right of UC_Reconfirm
+  условие: цена при подтверждении
+  отличается от показанной
+end note
+
+@enduml

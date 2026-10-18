@@ -36,7 +36,7 @@ rectangle "Система бронирования отелей" {
   usecase "Отправить\nemail-подтверждение" as UC_Email
 }
 
-User --> UC_Search
+User -- UC_Search
 
 UC_Search ..> UC_Dates : <<include>>
 UC_ViewPrice ..> UC_Actual : <<include>>
@@ -52,8 +52,8 @@ UC_ViewPrice .up.> UC_Search : <<extend>>
 UC_Book .up.> UC_ViewPrice : <<extend>>
 UC_Reconfirm .up.> UC_Book : <<extend>>
 
-UC_Actual --> HotelSys
-UC_Email --> Mail
+UC_Actual -- HotelSys
+UC_Email -- Mail
 
 note bottom of UC_ViewPrice
   информация: цена за ночь и за весь период, вместимость,

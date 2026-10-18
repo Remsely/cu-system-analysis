@@ -1,5 +1,10 @@
 @startuml
-!include common.iuml
+skinparam shadowing false
+skinparam defaultFontSize 12
+skinparam backgroundColor white
+skinparam roundCorner 8
+skinparam ArrowColor #333333
+skinparam wrapWidth 220
 title Диаграмма классов: доменная модель системы бронирования отелей
 skinparam classAttributeIconSize 0
 skinparam class {

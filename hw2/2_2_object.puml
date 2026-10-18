@@ -1,5 +1,10 @@
 @startuml
-!include common.iuml
+skinparam shadowing false
+skinparam defaultFontSize 12
+skinparam backgroundColor white
+skinparam roundCorner 8
+skinparam ArrowColor #333333
+skinparam wrapWidth 220
 title Диаграмма объектов: бронь оформлена, письмо-подтверждение ещё в очереди (18.10.2026, 11:45)
 skinparam object {
   BackgroundColor #EEF3FF

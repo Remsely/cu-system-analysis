@@ -32,7 +32,7 @@ object "__search1 : SearchFilter__" as search1 {
   maxPricePerNight = 6000.00
 }
 
-object "__limit1 : AttractionFilter__" as limit1 {
+object "__attrFilter1 : AttractionFilter__" as attrFilter1 {
   id = 1
   maxMinutes = 15
   travelMode = WALK
@@ -112,15 +112,15 @@ object "__mail1 : EmailNotification__" as mail1 {
   nextAttemptAt = 2026-10-18T11:45
 }
 
-ivan -- search1
-ivan -- booking1
-search1 *-- limit1
-limit1 -- redSquare
-nikolskaya *-- room412
-room412 -- booking1
-booking1 -- mail1
-nikolskaya -- kitayGorod
-nikolskaya -- redSquare
+ivan -- search1 : задаёт >
+ivan -- booking1 : оформляет >
+search1 *-- attrFilter1 : содержит
+attrFilter1 -- redSquare : ограничивает\nрасстояние до >
+nikolskaya *-- room412 : состоит из
+room412 -- booking1 : бронируется в >
+booking1 -- mail1 : порождает >
+nikolskaya -- kitayGorod : находится рядом с
+nikolskaya -- redSquare : находится рядом с
 (nikolskaya, kitayGorod) .. distMetro
 (nikolskaya, redSquare) .. distRed
 @enduml

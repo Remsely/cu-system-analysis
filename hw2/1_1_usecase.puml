@@ -23,6 +23,7 @@ actor "Почтовый сервис\n(внешний)" as Mail
 
 rectangle "Система бронирования отелей" {
   usecase "Найти отели в городе" as UC_Search
+  usecase "Выбрать даты\nи число гостей" as UC_Dates
   usecase "Отфильтровать по близости\nк метро" as UC_Metro
   usecase "Отфильтровать по расстоянию\nдо достопримечательностей" as UC_Attr
   usecase "Отфильтровать по завтраку" as UC_Breakfast
@@ -39,7 +40,7 @@ User --> UC_Search
 User --> UC_ViewPrice
 User --> UC_Book
 
-UC_Search ..> UC_ViewPrice : <<include>>
+UC_Search ..> UC_Dates : <<include>>
 UC_ViewPrice ..> UC_Actual : <<include>>
 UC_Book ..> UC_Actual : <<include>>
 UC_Book ..> UC_Email : <<include>>

@@ -1,0 +1,62 @@
+@startuml
+!include common.iuml
+title Диаграмма последовательности: пользователь бронирует номер и получает подтверждение
+skinparam sequence {
+  ParticipantBackgroundColor #EEF3FF
+  ParticipantBorderColor #3B5BDB
+  ActorBackgroundColor #EEF3FF
+  LifeLineBorderColor #888888
+  GroupBackgroundColor #FFFFFF
+}
+autonumber "<b>0"
+actor "Пользователь\n(браузер)" as U
+participant "WebApp" as W
+participant "Система отеля\n(внешняя)" as H
+database "БД" as DB
+queue "Очередь\nсобытий" as Q
+participant "Сервис\nуведомлений" as N
+participant "Почтовый\nсервис" as M
+
+U -> W : нажать «Забронировать»\n(номер, даты, гости, ожидаемая цена)
+activate W
+W -> H : зарезервировать номер\n(roomId, даты, гости, ожидаемая цена)
+activate H
+H --> W : результат резерва\n(RESERVED | ROOM_TAKEN | PRICE_CHANGED + новая цена)
+deactivate H
+
+alt ROOM_TAKEN: выбранный номер уже занят
+  W --> U : ошибка «Номер уже забронирован»,\nпредложение выбрать другой
+else PRICE_CHANGED: цена изменилась
+  W --> U : предупреждение (прежняя и новая цена),\nпросьба подтвердить заново
+else RESERVED: номер свободен, цена совпадает
+  W -> DB : сохранить бронь (status = CONFIRMED)\nи событие в outbox (одна транзакция)
+  activate DB
+  DB --> W : bookingNumber
+  deactivate DB
+  W ->> Q : опубликовать BookingConfirmed(bookingNumber)\n[асинхронно, ответа не ждём]
+  W --> U : экран с номером брони
+  deactivate W
+  Q ->> N : доставить событие BookingConfirmed\n[асинхронно; если сервис недоступен —\nсобытие остаётся в очереди и доставляется позже]
+
+  note over N, M : дальнейшее выполняется независимо от ответа пользователю
+  activate N
+  N -> DB : получить данные брони(bookingNumber)
+  activate DB
+  DB --> N : отель, адрес, тип номера, даты, гости
+  deactivate DB
+  loop до 5 повторов, паузы 1, 2, 4, 8, 15 мин
+    N -> M : отправить email
+    activate M
+    alt письмо принято
+      M --> N : OK
+      deactivate M
+      N -> DB : отметить уведомление отправленным
+      M ->> U : письмо с подтверждением бронирования
+    else сервис недоступен или ошибка
+      M --> N : ошибка
+      N -> DB : записать сбой в лог\n(номер брони, попытка, причина)
+    end
+  end
+  deactivate N
+end
+@enduml

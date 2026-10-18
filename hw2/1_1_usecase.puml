@@ -1,0 +1,65 @@
+@startuml
+!include common.iuml
+title Диаграмма прецедентов: система бронирования отелей
+left to right direction
+skinparam actorStyle stickman
+skinparam usecase {
+  BackgroundColor #EEF3FF
+  BorderColor #3B5BDB
+}
+skinparam rectangle {
+  BackgroundColor #FFFFFF
+  BorderColor #555555
+}
+
+actor "Пользователь" as User
+actor "Система отеля\n(внешняя)" as HotelSys
+actor "Почтовый сервис\n(внешний)" as Mail
+
+rectangle "Система бронирования отелей" {
+  usecase "Найти отели в городе" as UC_Search
+  usecase "Отфильтровать по близости\nк метро" as UC_Metro
+  usecase "Отфильтровать по расстоянию\nдо достопримечательностей" as UC_Attr
+  usecase "Отфильтровать по завтраку" as UC_Breakfast
+  usecase "Ограничить цену за ночь" as UC_Price
+  usecase "Смягчить фильтры\nпри пустой выдаче" as UC_Relax
+  usecase "Просмотреть информацию о номере\nи стоимость проживания" as UC_ViewPrice
+  usecase "Получить актуальную цену\nи наличие номера" as UC_Actual
+  usecase "Забронировать номер" as UC_Book
+  usecase "Повторно подтвердить\nизменившуюся цену" as UC_Reconfirm
+  usecase "Отправить\nemail-подтверждение" as UC_Email
+}
+
+User --> UC_Search
+User --> UC_ViewPrice
+User --> UC_Book
+
+UC_Search ..> UC_ViewPrice : <<include>>
+UC_ViewPrice ..> UC_Actual : <<include>>
+UC_Book ..> UC_Actual : <<include>>
+UC_Book ..> UC_Email : <<include>>
+
+UC_Metro .up.> UC_Search : <<extend>>
+UC_Attr .up.> UC_Search : <<extend>>
+UC_Breakfast .up.> UC_Search : <<extend>>
+UC_Price .up.> UC_Search : <<extend>>
+UC_Relax .up.> UC_Search : <<extend>>
+UC_Reconfirm .up.> UC_Book : <<extend>>
+
+UC_Actual --> HotelSys
+UC_Email --> Mail
+
+note left of UC_ViewPrice
+  информация: цена за ночь и за весь период,
+  вместимость, завтрак, расстояния
+  до метро и достопримечательностей
+end note
+note right of UC_Relax
+  условие: ни один отель
+  не подходит под фильтры
+end note
+note right of UC_Reconfirm
+  условие: цена при подтверждении
+  отличается от показанной
+end note
+@enduml

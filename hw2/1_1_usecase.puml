@@ -5,8 +5,6 @@ skinparam backgroundColor white
 skinparam roundCorner 8
 skinparam ArrowColor #333333
 skinparam wrapWidth 220
-title Диаграмма прецедентов: система бронирования отелей
-left to right direction
 skinparam actorStyle stickman
 skinparam usecase {
   BackgroundColor #EEF3FF
@@ -16,6 +14,9 @@ skinparam rectangle {
   BackgroundColor #FFFFFF
   BorderColor #555555
 }
+left to right direction
+
+title Диаграмма прецедентов: система бронирования отелей
 
 actor "Пользователь" as User
 actor "Система отеля\n(внешняя)" as HotelSys
@@ -65,25 +66,31 @@ note bottom of UC_ViewPrice
   завтрак, расстояния до метро и достопримечательностей
   условие: пользователь открыл карточку номера из выдачи
 end note
+
 note left of UC_Book
   условие: пользователь решил
   забронировать просмотренный номер
 end note
+
 note as N_Filters
   условие extend для фильтров:
   пользователь задал соответствующий фильтр
 end note
+
 N_Filters .. UC_Metro
 N_Filters .. UC_Attr
 N_Filters .. UC_Breakfast
 N_Filters .. UC_Price
+
 note right of UC_Relax
   условие: ни один отель не подходит под фильтры;
   система показывает до 10 ближайших отелей
   с указанием нарушенного фильтра
 end note
+
 note right of UC_Reconfirm
   условие: цена при подтверждении
   отличается от показанной
 end note
+
 @enduml

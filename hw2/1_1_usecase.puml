@@ -37,8 +37,10 @@ rectangle "Система бронирования отелей" {
 }
 
 User -- UC_Search
+User -- UC_Book
 
 UC_Search ..> UC_Dates : <<include>>
+UC_Search ..> UC_Actual : <<include>>
 UC_ViewPrice ..> UC_Actual : <<include>>
 UC_Book ..> UC_Actual : <<include>>
 UC_Book ..> UC_Email : <<include>>
@@ -64,9 +66,18 @@ note left of UC_Book
   условие: пользователь решил
   забронировать просмотренный номер
 end note
+note as N_Filters
+  условие extend для фильтров:
+  пользователь задал соответствующий фильтр
+end note
+N_Filters .. UC_Metro
+N_Filters .. UC_Attr
+N_Filters .. UC_Breakfast
+N_Filters .. UC_Price
 note right of UC_Relax
-  условие: ни один отель
-  не подходит под фильтры
+  условие: ни один отель не подходит под фильтры;
+  система показывает до 10 ближайших отелей
+  с указанием нарушенного фильтра
 end note
 note right of UC_Reconfirm
   условие: цена при подтверждении

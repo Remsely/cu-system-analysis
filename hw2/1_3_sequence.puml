@@ -13,6 +13,14 @@ skinparam sequence {
   LifeLineBorderColor #888888
   GroupBackgroundColor #FFFFFF
 }
+skinparam database {
+  BackgroundColor #EEF3FF
+  BorderColor #3B5BDB
+}
+skinparam queue {
+  BackgroundColor #EEF3FF
+  BorderColor #3B5BDB
+}
 autonumber "<b>0"
 actor "Пользователь" as U
 participant "Система\nбронирования" as W
@@ -83,23 +91,15 @@ loop первая попытка и до 5 повторов (паузы 1, 2, 4,
   M --> N : принято | ошибка
   deactivate M
   opt ошибка
-    N -> DB : записать сбой в лог\n(номер брони, попытка, причина)
-    activate DB
-    DB --> N : ok
-    deactivate DB
+    N -> N : записать сбой в лог\n(номер брони, попытка, причина)
   end
 end
-alt письмо принято
-  N -> DB : статус уведомления SENT
-  activate DB
-  DB --> N : ok
-  deactivate DB
+N -> DB : сохранить статус уведомления\n(SENT | FAILED, если повторы исчерпаны)
+activate DB
+DB --> N : ok
+deactivate DB
+opt письмо принято
   M ->> U : письмо с подтверждением бронирования
-else повторы исчерпаны
-  N -> DB : статус уведомления FAILED
-  activate DB
-  DB --> N : ok
-  deactivate DB
 end
 deactivate N
 @enduml

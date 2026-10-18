@@ -50,15 +50,21 @@ UC_Attr .up.> UC_Search : <<extend>>
 UC_Breakfast .up.> UC_Search : <<extend>>
 UC_Price .up.> UC_Search : <<extend>>
 UC_Relax .up.> UC_Search : <<extend>>
+UC_ViewPrice .up.> UC_Search : <<extend>>
+UC_Book .up.> UC_ViewPrice : <<extend>>
 UC_Reconfirm .up.> UC_Book : <<extend>>
 
 UC_Actual --> HotelSys
 UC_Email --> Mail
 
-note left of UC_ViewPrice
-  информация: цена за ночь и за весь период,
-  вместимость, завтрак, расстояния
-  до метро и достопримечательностей
+note bottom of UC_ViewPrice
+  информация: цена за ночь и за весь период, вместимость,
+  завтрак, расстояния до метро и достопримечательностей
+  условие: пользователь открыл карточку номера из выдачи
+end note
+note left of UC_Book
+  условие: пользователь решил
+  забронировать просмотренный номер
 end note
 note right of UC_Relax
   условие: ни один отель

@@ -30,7 +30,7 @@ rectangle "Система бронирования отелей" {
   usecase "Отфильтровать по расстоянию\nдо достопримечательностей" as UC_Attr
   usecase "Отфильтровать по завтраку" as UC_Breakfast
   usecase "Ограничить цену за ночь" as UC_Price
-  usecase "Смягчить фильтры\nпри пустой выдаче" as UC_Relax
+  usecase "Смягчить фильтры" as UC_Relax
   usecase "Просмотреть информацию о номере\nи стоимость проживания" as UC_ViewPrice
   usecase "Получить актуальную цену\nи наличие номера" as UC_Actual
   usecase "Забронировать номер" as UC_Book
@@ -44,7 +44,6 @@ User -- UC_Book
 
 UC_Search ..> UC_Dates : <<include>>
 UC_Search ..> UC_Actual : <<include>>
-UC_ViewPrice ..> UC_Actual : <<include>>
 UC_Book ..> UC_Actual : <<include>>
 UC_Book ..> UC_Reserve : <<include>>
 UC_Book ..> UC_Email : <<include>>
@@ -84,9 +83,9 @@ N_Filters .. UC_Breakfast
 N_Filters .. UC_Price
 
 note right of UC_Relax
-  условие: ни один отель не подходит под фильтры;
-  система показывает до 10 ближайших отелей
-  с указанием нарушенного фильтра
+  условие: выдача пустая или не устраивает пользователя;
+  при пустой выдаче система показывает до 10 ближайших
+  отелей с указанием нарушенного фильтра
 end note
 
 note right of UC_Reconfirm

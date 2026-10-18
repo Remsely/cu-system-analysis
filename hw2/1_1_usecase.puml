@@ -37,8 +37,6 @@ rectangle "Система бронирования отелей" {
 }
 
 User --> UC_Search
-User --> UC_ViewPrice
-User --> UC_Book
 
 UC_Search ..> UC_Dates : <<include>>
 UC_ViewPrice ..> UC_Actual : <<include>>

@@ -14,7 +14,9 @@ hide empty members
 
 object "__ivan : User__" as ivan {
   id = "b7c1e2a4-5d3f-4a2e-9c10-7f3a8e6d1b25"
-  fullName = "Иван Петров"
+  lastName = "Петров"
+  firstName = "Иван"
+  middleName = "Сергеевич"
   email = "ivan.petrov@example.com"
   phone = "+7 905 123-45-67"
 }
@@ -30,10 +32,10 @@ object "__search1 : SearchFilter__" as search1 {
   maxPricePerNight = 6000.00
 }
 
-object "__limit1 : AttractionLimit__" as limit1 {
+object "__limit1 : AttractionFilter__" as limit1 {
+  id = 1
   maxMinutes = 15
   travelMode = WALK
-  sortOrder = 1
 }
 
 object "__redSquare : Attraction__" as redSquare {

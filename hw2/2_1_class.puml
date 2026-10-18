@@ -16,7 +16,9 @@ hide empty members
 
 class User {
   - id: UUID
-  - fullName: String
+  - lastName: String
+  - firstName: String
+  - middleName: String
   - email: String
   - phone: String
   + getContactEmail(): String
@@ -36,10 +38,10 @@ class SearchFilter {
   + matches(hotel: Hotel): boolean
 }
 
-class AttractionLimit {
+class AttractionFilter {
+  - id: Long
   - maxMinutes: int
   - travelMode: TravelMode
-  - sortOrder: int
   + isSatisfiedBy(d: HotelDistance): boolean
   + getMaxMinutes(): int
 }
@@ -118,8 +120,8 @@ abstract class Notification {
   - id: Long
   # status: NotificationStatus
   # createdAt: LocalDateTime
-  + send(): boolean
   + markSent(): void
+  + markFailed(): void
 }
 
 class EmailNotification {
@@ -127,8 +129,8 @@ class EmailNotification {
   - subject: String
   - attempts: int
   - nextAttemptAt: LocalDateTime
-  + send(): boolean
-  + scheduleRetry(): void
+  + registerFailure(reason: String): void
+  + canRetry(): boolean
 }
 
 enum TravelMode <<enumeration>> {
@@ -149,8 +151,8 @@ enum NotificationStatus <<enumeration>> {
 
 User "1" -- "0..*" SearchFilter : задаёт >
 User "1" -- "0..*" Booking : оформляет >
-SearchFilter "1" *-- "0..*" AttractionLimit : содержит
-AttractionLimit "0..*" -- "1" Attraction : ограничивает\nрасстояние до >
+SearchFilter "1" *-- "0..*" AttractionFilter : содержит
+AttractionFilter "0..*" -- "1" Attraction : ограничивает\nрасстояние до >
 SearchFilter ..> Hotel : отбирает
 
 Hotel "1" *-- "1..*" Room : состоит из
@@ -164,7 +166,7 @@ PlaceOfInterest <|-- MetroStation
 PlaceOfInterest <|-- Attraction
 Notification <|-- EmailNotification
 
-AttractionLimit ..> TravelMode
+AttractionFilter ..> TravelMode
 Booking ..> BookingStatus
 Notification ..> NotificationStatus
 @enduml

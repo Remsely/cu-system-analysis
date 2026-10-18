@@ -33,6 +33,7 @@ rectangle "Система бронирования отелей" {
   usecase "Получить актуальную цену\nи наличие номера" as UC_Actual
   usecase "Забронировать номер" as UC_Book
   usecase "Повторно подтвердить\nизменившуюся цену" as UC_Reconfirm
+  usecase "Зарезервировать номер\nв отеле" as UC_Reserve
   usecase "Отправить\nemail-подтверждение" as UC_Email
 }
 
@@ -43,6 +44,7 @@ UC_Search ..> UC_Dates : <<include>>
 UC_Search ..> UC_Actual : <<include>>
 UC_ViewPrice ..> UC_Actual : <<include>>
 UC_Book ..> UC_Actual : <<include>>
+UC_Book ..> UC_Reserve : <<include>>
 UC_Book ..> UC_Email : <<include>>
 
 UC_Metro .up.> UC_Search : <<extend>>
@@ -55,6 +57,7 @@ UC_Book .up.> UC_ViewPrice : <<extend>>
 UC_Reconfirm .up.> UC_Book : <<extend>>
 
 UC_Actual -- HotelSys
+UC_Reserve -- HotelSys
 UC_Email -- Mail
 
 note bottom of UC_ViewPrice

@@ -19,9 +19,8 @@ class User {
   - fullName: String
   - email: String
   - phone: String
-  + createSearch(): SearchFilter
-  + book(room: Room, checkIn: LocalDate,
-    checkOut: LocalDate, guests: int): Booking
+  + getContactEmail(): String
+  + getBookings(): List<Booking>
 }
 
 class SearchFilter {
@@ -83,6 +82,7 @@ class Hotel {
 class Room {
   - id: Long
   - number: String
+  - roomType: String
   - capacity: int
   - includedGuests: int
   - pricePerNight: BigDecimal
@@ -104,13 +104,14 @@ class HotelDistance <<association class>> {
 
 class Booking {
   - bookingNumber: String
+  - hotelReservationId: String
   - checkIn: LocalDate
   - checkOut: LocalDate
   - guests: int
   - totalPrice: BigDecimal
   - status: BookingStatus
-  + confirm(): void
-  + reprice(newPrice: BigDecimal): void
+  + confirm(hotelReservationId: String): void
+  + fail(): void
 }
 
 abstract class Notification {

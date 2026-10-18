@@ -67,6 +67,7 @@ object "__nikolskaya : Hotel__" as nikolskaya {
 object "__room412 : Room__" as room412 {
   id = 5412
   number = "412"
+  roomType = "Стандарт двухместный"
   capacity = 3
   includedGuests = 2
   pricePerNight = 4800.00
@@ -91,6 +92,7 @@ object "__distRedSquare : HotelDistance__" as distRed {
 
 object "__booking1 : Booking__" as booking1 {
   bookingNumber = "BK-2026-004871"
+  hotelReservationId = "NKL-77812"
   checkIn = 2026-11-12
   checkOut = 2026-11-15
   guests = 2

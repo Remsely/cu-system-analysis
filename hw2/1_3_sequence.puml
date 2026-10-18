@@ -14,8 +14,8 @@ skinparam sequence {
   GroupBackgroundColor #FFFFFF
 }
 autonumber "<b>0"
-actor "Пользователь\n(браузер)" as U
-participant "WebApp" as W
+actor "Пользователь" as U
+participant "Система\nбронирования" as W
 participant "Система отеля\n(внешняя)" as H
 database "БД" as DB
 queue "Очередь\nсобытий" as Q

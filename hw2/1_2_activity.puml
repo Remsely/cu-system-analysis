@@ -1,4 +1,5 @@
 @startuml
+
 skinparam shadowing false
 skinparam defaultFontSize 12
 skinparam backgroundColor white
@@ -29,7 +30,7 @@ repeat
   if (Подходящие отели найдены?) then (да)
     :Показать выдачу с ценами\nза выбранные даты;
   else (нет)
-    :Показать сообщение и до 10 ближайших\nотелей с указанием нарушенного фильтра;
+    :Показать сообщение и до 10 ближайших\nотелей с указанием измененных фильтров для каждого варианта;
   endif
   |Пользователь|
 backward :Смягчить фильтры;
@@ -72,4 +73,5 @@ fork again
   |Система|
 end fork
 stop
+
 @enduml

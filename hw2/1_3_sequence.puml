@@ -1,11 +1,11 @@
 @startuml
+
 skinparam shadowing false
 skinparam defaultFontSize 12
 skinparam backgroundColor white
 skinparam roundCorner 8
 skinparam ArrowColor #333333
 skinparam wrapWidth 220
-title Диаграмма последовательности: пользователь бронирует номер и получает подтверждение
 skinparam sequence {
   ParticipantBackgroundColor #EEF3FF
   ParticipantBorderColor #3B5BDB
@@ -21,7 +21,11 @@ skinparam queue {
   BackgroundColor #EEF3FF
   BorderColor #3B5BDB
 }
+
+title Диаграмма последовательности: пользователь бронирует номер и получает подтверждение
+
 autonumber "<b>0"
+
 actor "Пользователь" as U
 participant "Система\nбронирования" as W
 participant "Система отеля\n(внешняя)" as H

@@ -1,16 +1,18 @@
 @startuml
+
 skinparam shadowing false
 skinparam defaultFontSize 12
 skinparam backgroundColor white
 skinparam roundCorner 8
 skinparam ArrowColor #333333
 skinparam wrapWidth 220
-title Диаграмма объектов: бронь оформлена, письмо-подтверждение ещё в очереди (18.10.2026, 11:45)
 skinparam object {
   BackgroundColor #EEF3FF
   BorderColor #3B5BDB
 }
 hide empty members
+
+title Диаграмма объектов: бронь оформлена, письмо-подтверждение ещё в очереди (18.10.2026, 11:45)
 
 object "__ivan : User__" as ivan {
   id = "b7c1e2a4-5d3f-4a2e-9c10-7f3a8e6d1b25"

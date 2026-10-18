@@ -34,17 +34,25 @@ alt номер недоступен
 else актуальная цена отличается от показанной
   W --> U : предупреждение (прежняя и новая цена),\nпросьба подтвердить заново
 else номер доступен, цена совпала
-  W -> H : создать бронь (roomId, даты, гости, цена)
+  W -> DB : создать бронь (PENDING)
+  activate DB
+  DB --> W : bookingNumber
+  deactivate DB
+  W -> H : создать бронь (bookingNumber как ключ\nидемпотентности, roomId, даты, гости, цена)
   activate H
   H --> W : подтверждение брони отелем | ошибка «нет мест»
   deactivate H
   alt бронь создана в системе отеля
-    W -> DB : сохранить бронь (CONFIRMED) и событие\nBookingConfirmed в outbox (одна транзакция)
+    W -> DB : статус CONFIRMED и событие\nBookingConfirmed в outbox (одна транзакция)
     activate DB
-    DB --> W : bookingNumber
+    DB --> W : ok
     deactivate DB
     W --> U : экран с номером брони
   else нет мест: номер заняли между проверкой и бронью
+    W -> DB : статус FAILED
+    activate DB
+    DB --> W : ok
+    deactivate DB
     W --> U : «Номер уже забронирован»,\nпредложение вернуться к выдаче
   end
 end

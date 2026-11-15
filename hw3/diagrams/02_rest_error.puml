@@ -1,0 +1,36 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam backgroundColor white
+skinparam roundCorner 8
+skinparam ArrowColor #333333
+skinparam wrapWidth 230
+skinparam maxMessageSize 95
+skinparam sequence {
+  ParticipantBackgroundColor #EEF3FF
+  ParticipantBorderColor #3B5BDB
+  ActorBackgroundColor #EEF3FF
+  LifeLineBorderColor #888888
+}
+autonumber
+actor "Пользователь" as U
+participant "Браузерный клиент" as C
+participant "Наш REST API" as A
+participant "Поисковый компонент" as S
+database "Каталог и геоданные" as K
+participant "Гостиничные системы" as H
+
+title REST: гостиничный источник не ответил вовремя
+U -> C : запустить поиск
+C -> A : GET /v1/hotel-offers\nусловия в параметрах URL
+A -> A : проверить параметры
+A -> S : подобрать предложения
+S -> K : географический отбор кандидатов
+K --> S : отели-кандидаты
+S -> H : запросить цены и наличие
+S -> S : истёк срок ожидания ответа\nнеобходимого гостиничного источника
+S --> A : ошибка UPSTREAM_TIMEOUT
+A --> C : 504 Gateway Timeout\nсообщение о тайм-ауте источника
+C --> U : сообщить о незавершённом поиске;\nпредложить повторить
+@enduml

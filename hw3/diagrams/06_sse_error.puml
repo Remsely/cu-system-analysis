@@ -1,0 +1,44 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam backgroundColor white
+skinparam roundCorner 8
+skinparam ArrowColor #333333
+skinparam wrapWidth 230
+skinparam maxMessageSize 95
+skinparam sequence {
+  ParticipantBackgroundColor #EEF3FF
+  ParticipantBorderColor #3B5BDB
+  ActorBackgroundColor #EEF3FF
+  LifeLineBorderColor #888888
+}
+autonumber
+actor "Пользователь" as U
+participant "Браузерный клиент" as C
+participant "Наш SSE API" as A
+participant "Поисковый компонент" as S
+database "Каталог и геоданные" as K
+participant "Гостиничные системы" as H
+
+title SSE: гостиничный источник не ответил вовремя
+U -> C : запустить поиск
+C -> A : EventSource: GET /v1/hotel-offers/stream\nусловия в параметрах URL
+A -> A : проверить параметры
+A --> C : 200 OK; Content-Type: text/event-stream
+A ->> S : запустить поиск
+S -> K : географический отбор кандидатов
+K --> S : отели-кандидаты
+S -> H : запросить цены и наличие у первого источника
+H --> S : данные первого источника
+S -> S : применить фильтры
+S ->> A : предварительные совпадения
+A ->> C : event: results\ndata: JSON предварительных совпадений
+C ->> U : показать предварительные предложения\nи продолжающийся поиск
+S -> H : запросить цены и наличие у следующего источника
+S -> S : истёк срок ожидания ответа\nнеобходимого гостиничного источника
+S ->> A : ошибка UPSTREAM_TIMEOUT
+A ->> C : event: search_failed\ndata: причина UPSTREAM_TIMEOUT
+C -> C : EventSource.close();\nпометить попытку незавершённой
+C --> U : сообщить о сбое; предложить повторить\nпредварительные данные не являются итогом
+@enduml

@@ -1,0 +1,41 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam backgroundColor white
+skinparam roundCorner 8
+skinparam ArrowColor #333333
+skinparam wrapWidth 230
+skinparam maxMessageSize 95
+skinparam sequence {
+  ParticipantBackgroundColor #EEF3FF
+  ParticipantBorderColor #3B5BDB
+  ActorBackgroundColor #EEF3FF
+  LifeLineBorderColor #888888
+}
+autonumber
+actor "Пользователь" as U
+participant "Браузерный клиент" as C
+participant "Прокси gRPC-Web\nEnvoy" as P
+participant "Наш gRPC API" as A
+participant "Поисковый компонент" as S
+database "Каталог и геоданные" as K
+participant "Гостиничные системы" as H
+
+title gRPC: истечение срока выполнения RPC
+U -> C : запустить поиск
+C -> C : создать SearchRequest; задать deadline
+C -> P : gRPC-Web: unary Search(SearchRequest)\nбинарный режим grpcweb; deadline
+P -> A : gRPC/HTTP2: Search(SearchRequest), deadline
+A -> A : проверить параметры
+A -> S : подобрать предложения до deadline
+S -> K : географический отбор кандидатов
+K --> S : отели-кандидаты
+S -> H : запросить цены и наличие
+C -> C : истёк deadline RPC;\nполучить ошибку DEADLINE_EXCEEDED (4)
+C ->> P : отменить незавершённый вызов
+P ->> A : передать отмену RPC
+A ->> S : отменить выполнение поиска
+S -> S : прекратить ожидание данных источника
+C --> U : сообщить о незавершённом поиске;\nпредложить повторить
+@enduml

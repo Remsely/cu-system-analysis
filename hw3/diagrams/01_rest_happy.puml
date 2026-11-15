@@ -1,0 +1,48 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam backgroundColor white
+skinparam roundCorner 8
+skinparam ArrowColor #333333
+skinparam wrapWidth 230
+skinparam maxMessageSize 95
+skinparam sequence {
+  ParticipantBackgroundColor #EEF3FF
+  ParticipantBorderColor #3B5BDB
+  ActorBackgroundColor #EEF3FF
+  LifeLineBorderColor #888888
+}
+autonumber
+actor "Пользователь" as U
+participant "Браузерный клиент" as C
+participant "Наш REST API" as A
+participant "Поисковый компонент" as S
+database "Каталог и геоданные" as K
+participant "Гостиничные системы" as H
+
+title REST: получение итоговой выдачи
+U -> C : задать поездку и фильтры; запустить поиск
+C -> C : проверить корректность формы
+C -> A : GET /v1/hotel-offers\nгород, даты, гости и фильтры в параметрах URL
+activate A
+A -> A : проверить параметры
+A -> S : подобрать предложения
+activate S
+S -> K : отобрать кандидатов по городу, метро\nи всем условиям достопримечательностей
+K --> S : отели-кандидаты
+S -> H : запросить цены и наличие\nна выбранные даты и число гостей
+H --> S : ответы необходимых источников
+S -> S : применить фильтры завтрака и цены;\nсформировать итоговую выдачу
+alt подходящие предложения найдены
+  S --> A : совпадения и стоимость проживания
+else совпадений нет
+  S -> K : до 10 ближайших отелей\nс указанием нарушенных фильтров
+  K --> S : рекомендации
+  S --> A : сообщение, рекомендации\nи предложение смягчить фильтры
+end
+deactivate S
+A --> C : 200 OK; application/json\nитог поиска; Cache-Control: no-store
+deactivate A
+C --> U : показать итоговую выдачу\nлибо отсутствие совпадений и рекомендации
+@enduml
